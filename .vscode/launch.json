@@ -1,0 +1,35 @@
+{
+    "configurations": [
+        {
+            "name": "LLDB: exprc",
+            "type": "lldb-dap",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/debug/exprc",
+            "args": [ ],
+            "env": { },
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "name": "LLDB: c",
+            "type": "lldb-dap",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/debug/c",
+            "stdio": [ "${workspaceFolder}/tests/lambda/1.lmb", null, null ],
+            "args": [ ],
+            "env": { },
+            "cwd": "${workspaceFolder}",
+        },
+        {
+            "name": "CPPDBG: exprc",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/debug/exprc",
+            "args": [ ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [ ],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}
