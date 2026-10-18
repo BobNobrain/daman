@@ -60,7 +60,7 @@ $(OUT_DIR)/$(1).o: src/$(1).c $(foreach lib,$(2),src/$(lib)/$(lib).h)
 	$$(CC) $$(CPPFLAGS) $$(CFLAGS) -c $$< -o $$@
 endef
 
-$(eval $(call EXEC_COMPILATION_RULE,daman,util parser runner))
+$(eval $(call EXEC_COMPILATION_RULE,daman,util lang))
 
 define LIB_COMPILATION_RULE
 $(1)_C_FILES = $$(wildcard src/$(1)/*.c)
