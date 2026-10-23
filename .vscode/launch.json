@@ -1,20 +1,10 @@
 {
     "configurations": [
         {
-            "name": "LLDB: exprc",
+            "name": "LLDB: daman",
             "type": "lldb-dap",
             "request": "launch",
-            "program": "${workspaceFolder}/out/debug/exprc",
-            "args": [ ],
-            "env": { },
-            "cwd": "${workspaceFolder}",
-        },
-        {
-            "name": "LLDB: c",
-            "type": "lldb-dap",
-            "request": "launch",
-            "program": "${workspaceFolder}/out/debug/c",
-            "stdio": [ "${workspaceFolder}/tests/lambda/1.lmb", null, null ],
+            "program": "${workspaceFolder}/out/debug/daman",
             "args": [ ],
             "env": { },
             "cwd": "${workspaceFolder}",
