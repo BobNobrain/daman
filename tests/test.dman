@@ -1,0 +1,17 @@
+enum Unit { Unit }
+
+enum TodoStatus {
+    Todo,
+    InProgress
+    Done
+}
+
+object TodoItem {
+    title String
+    status TodoStatus
+    variant Variant
+
+    ~variant Done {
+        x Number
+    }
+}

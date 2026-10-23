@@ -1,0 +1,36 @@
+enum Boolean { False, True }
+
+enum BasicType { Int, Number, String, RegExp }
+
+object ObjectField {
+    name String
+    type DataType
+    ordinal Int
+}
+
+object EnumMember {
+    name String
+    ordinal Int
+}
+
+object DataType {
+    name String
+    specs list String
+
+    ~variant Basic {
+        kind BasicType
+    }
+
+    ~variant Alias {
+        over DataType
+    }
+
+    ~variant Enum {
+        members list EnumMember
+    }
+
+    ~variant Object {
+        fields list ObjectField
+        variants list DataType.Object
+    }
+}

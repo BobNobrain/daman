@@ -8,18 +8,26 @@ ASTNode* _compiler_astnode_new(Arena *arena, ASTNodeType type) {
 
     return new_node;
 }
+ASTNode* _compiler_astnode_new_from_token(Arena *arena, ASTNodeType type, Token token) {
+    ASTNode* node = _compiler_astnode_new(arena, type);
+    node->basis_range = token.range;
+    node->full_range = token.range;
+    return node;
+}
 
 ASTNode* _compiler_astnode_new_error(Parser *parser, String msg) {
-    ASTNode *e = ct_astnode_new(parser->arena, ASTNodeType_SYNTAX_ERROR);
+    ASTNode *e = _compiler_astnode_new(parser->arena, ASTNodeType_SYNTAX_ERROR);
     e->data.error = msg;
-    e->range = _compiler_parser_current_range(parser);
+    e->full_range = _compiler_parser_current_range(parser);
+    e->basis_range = _compiler_parser_current_range(parser);
     return e;
 }
 
 ASTNode* _compiler_astnode_new_error_ranged(Parser *parser, String msg, DocumentRange range) {
-    ASTNode *e = ct_astnode_new(parser->arena, ASTNodeType_SYNTAX_ERROR);
+    ASTNode *e = _compiler_astnode_new(parser->arena, ASTNodeType_SYNTAX_ERROR);
     e->data.error = msg;
-    e->range = range;
+    e->full_range = range;
+    e->basis_range = range;
     return e;
 }
 
@@ -69,57 +77,52 @@ void compiler_astnode_print(ASTNode *node, size_t indent) {
     case ASTNodeType_SYNTAX_ERROR:
         printf(
             "ERROR (%zu:%zu-%zu:%zu): " STR_FMT,
-            node->range.start.line,
-            node->range.start.column,
-            node->range.end.line,
-            node->range.end.column,
+            node->full_range.start.line,
+            node->full_range.start.column,
+            node->full_range.end.line,
+            node->full_range.end.column,
             STR_FMT_VAL(node->data.error)
         );
-        break;
-    case ASTNodeType_LINT:
-        printf("INT %d", node->data.lint);
-        break;
-    case ASTNodeType_LFLOAT:
-        printf("FLOAT %f", node->data.lfloat);
-        break;
-    case ASTNodeType_LBOOL:
-        printf("BOOL %d", node->data.lbool);
-        break;
-    case ASTNodeType_IDENT:
-        printf("IDENT " STR_FMT, STR_FMT_VAL(node->data.ident.name));
-        break;
-    case ASTNodeType_LAMBDA:
-        printf("LAMBDA (%zu) ", node->data.lambda.n_args);
-        break;
-    case ASTNodeType_LAMBDA_ARG:
-        printf(
-            "ARG " STR_FMT ":" STR_FMT,
-            STR_FMT_VAL(node->data.lambda_arg.name),
-            STR_FMT_VAL(node->data.lambda_arg.type)
-        );
-        break;
-    case ASTNodeType_BINOP:
-        printf("BINOP " STR_FMT, STR_FMT_VAL(node->base->data.op));
-        break;
-    case ASTNodeType_UNOP:
-        printf("UNOP " STR_FMT, STR_FMT_VAL(node->data.unop.op));
-        break;
-    case ASTNodeType_FNCALL:
-        printf("FNCALL");
-        break;
-    case ASTNodeType_ASSIGNMENT:
-        printf("ASSIGNMENT " STR_FMT " =", STR_FMT_VAL(node->data.assignment.identifier));
-        break;
-    case ASTNodeType_ENTRY:
-        printf("ENTRY");
-        break;
-    case ASTNodeType_LMB_FILE:
-        printf(".LMB FILE");
-        break;
+    break;
 
-    default:
-        printf("UNKNOWN");
-        break;
+    case ASTNodeType_LINT: printf("INT %d", node->data.l_int); break;
+    case ASTNodeType_LNUM: printf("NUM %f", node->data.l_num); break;
+    case ASTNodeType_IDENT: printf("IDENT "STR_FMT, STR_FMT_VAL(node->data.ident.name)); break;
+
+    case ASTNodeType_IDENT_NESTED: printf("NESTED IDENT "); break;
+    case ASTNodeType_ENUM_DECL: printf("ENUM "STR_FMT, STR_FMT_VAL(node->data.enum_decl.name)); break;
+
+    case ASTNodeType_OBJECT_DECL:
+        printf(
+            "OBJECT "STR_FMT" (%zu fields, %zu variants)",
+            STR_FMT_VAL(node->data.object_decl.name),
+            node->data.object_decl.n_fields,
+            node->data.object_decl.n_variants
+        );
+    break;
+
+    case ASTNodeType_OBJECT_FIELD_DECL:
+        printf(
+            "FIELD "STR_FMT" "STR_FMT,
+            STR_FMT_VAL(node->data.field_decl.name),
+            STR_FMT_VAL(node->data.field_decl.type_name)
+        );
+    break;
+
+    case ASTNodeType_OBJECT_FIELD_SPEC: printf("FIELD SPEC "); break;
+
+    case ASTNodeType_OBJECT_VARIANT_DECL:
+        printf(
+            "VARIANT "STR_FMT" (%zu fields, %zu variants)",
+            STR_FMT_VAL(node->data.variant_decl.name),
+            node->data.variant_decl.n_fields,
+            node->data.variant_decl.n_variants
+        );
+    break;
+
+    case ASTNodeType_DMAN_FILE: printf(".DMAN FILE"); break;
+
+    default: printf("UNKNOWN"); break;
     }
 
     printf("\n");
@@ -137,17 +140,15 @@ bool _compiler_astnode_is_error(ASTNode *node) {
 
 void _compiler_astnode_set_range_span_children(ASTNode *node) {
     if (!node->first_child) {
-        if (!node->base) { return; }
-
-        node->range = node->base->range;
+        node->full_range = node->basis_range;
         return;
     }
 
     ASTNode *last = _compiler_astnode_find_last_child(node);
     if (last == node->first_child) {
-        node->range = node->first_child->range;
+        node->full_range = node->first_child->full_range;
         return;
     }
 
-    node->range = compiler_document_range_span(node->first_child->range, last->range);
+    node->full_range = compiler_document_range_span(node->first_child->full_range, last->full_range);
 }

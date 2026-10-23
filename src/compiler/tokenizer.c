@@ -11,7 +11,7 @@ SLICE_METHODS_IMPL(_compiler_tokenslice, Token)
 SLICE_ARRAY_METHODS_IMPL(_compiler_tokenarray, Token)
 
 void _compiler_tokenizer_init(Tokenizer *t, Compiler *c) {
-    compiler_tokenarray_init(&t->tokens, 128, c->arena);
+    _compiler_tokenarray_init(&t->tokens, 128, c->arena);
     t->cursor = compiler_document_pos_zero();
     t->source = c->source;
 }
@@ -272,26 +272,19 @@ TokenScannerResult _compiler_tokenizer_scan_builtin_op(Tokenizer *t, Token *into
 
 #define NARROW_TOKENIZER_KEYWORD(CONST_NAME, C_STR) \
     else if (str_eq(token_content, STR_CONST(C_STR))) { \
-        token->type = TokenType_KEYWORD;                \
-        token->data.keyword = CONST_NAME;               \
+        token->data.ident.keyword = CONST_NAME;         \
     }
 
-void compiler_tokenizer_parse_token(Token *token, String source, DiagnosticArray *errors) {
+void _compiler_tokenizer_parse_token(Token *token, String source, DiagnosticArray *errors) {
     String token_content = compiler_document_substring(source, token->range);
 
     switch (token->type) {
     case TokenType_IDENT:
-        if (str_eqc(token_content, "true")) {
-            token->type = TokenType_BOOL_LITERAL;
-            token->data.l_bool = true;
-        } else if (str_eqc(token_content, "false")) {
-            token->type = TokenType_BOOL_LITERAL;
-            token->data.l_bool = false;
-        }
+        token->data.ident.name = token_content;
+        token->data.ident.keyword = Keyword_NONE;
+
+        if (false) {}
         KEYWORD_LIST(NARROW_TOKENIZER_KEYWORD)
-        else {
-            token->data.ident = token_content;
-        }
     break;
 
     case TokenType_INT_LITERAL: {
@@ -364,7 +357,7 @@ void _compiler_tokenizer_consume_source(Tokenizer *t, size_t n) {
     t->source = str_substring(t->source, n, t->source.size);
 }
 
-void compiler_tokenizer_run(Tokenizer *t, String source, DiagnosticArray *errors) {
+void _compiler_tokenizer_run(Tokenizer *t, String source, DiagnosticArray *errors) {
     t->source = source;
     t->cursor = compiler_document_pos_zero();
 
@@ -379,7 +372,7 @@ void compiler_tokenizer_run(Tokenizer *t, String source, DiagnosticArray *errors
             if (!scan_result.token_range_set) {                                             \
                 current.range = compiler_document_range(t->cursor, scan_result.chars_scanned);\
             }                                                                               \
-            compiler_tokenizer_push_token(t, current);                                        \
+            _compiler_tokenizer_push_token(t, current);                                        \
         }                                                                                   \
         if (!scan_result.cursor_updated) {                                                  \
             compiler_document_pos_track(&t->cursor, scan_result.chars_scanned);               \
@@ -414,7 +407,7 @@ void compiler_tokenizer_run(Tokenizer *t, String source, DiagnosticArray *errors
         // cannot consume the rest, must be invalid input
         current.type = TokenType_INVALID;
         current.range = compiler_document_range(t->cursor, 1);
-        compiler_tokenizer_push_token(t, current);
+        _compiler_tokenizer_push_token(t, current);
         _compiler_tokenizer_consume_source(t, 1);
         compiler_document_pos_track(&t->cursor, 1);
     }
@@ -422,39 +415,35 @@ void compiler_tokenizer_run(Tokenizer *t, String source, DiagnosticArray *errors
     #undef TRY_TOKEN_SCANNER
 
     for (size_t i = 0; i < t->tokens.size; i++) {
-        compiler_tokenizer_parse_token(&t->tokens.content[i], source, errors);
+        _compiler_tokenizer_parse_token(&t->tokens.content[i], source, errors);
     }
 }
 
 #define PRINT_TOKENIZER_KEYWORD_CASE(CONST_NAME, C_STR) \
-    case CONST_NAME: printf(C_STR " "); break;
+    case CONST_NAME: printf("<kw:" C_STR "> "); break;
 
 void _compiler_token_print(Token token) {
     switch (token.type) {
-    case TokenType_BOOL_LITERAL:
-        if (token.data.l_bool) {
-            printf("<true> ");
-        } else {
-            printf("<false> ");
-        }
-    break;
+    case TokenType_IDENT:
+        switch (token.data.ident.keyword) {
+            case Keyword_NONE:
+                printf("<ident:" STR_FMT "> ", STR_FMT_VAL(token.data.ident.name));
+            break;
 
-    case TokenType_KEYWORD:
-        switch (token.data.keyword) {
             KEYWORD_LIST(PRINT_TOKENIZER_KEYWORD_CASE)
-            default: printf("<unknown kw> "); break;
+
+            default: printf("<unknown kw '"STR_FMT"'> ", STR_FMT_VAL(token.data.ident.name)); break;
         }
     break;
 
-    case TokenType_IDENT:         printf("<ident:" STR_FMT "> ", STR_FMT_VAL(token.data.ident)); break;
-    case TokenType_INT_LITERAL:   printf("<int:%d> ", token.data.l_int);                         break;
-    case TokenType_FLOAT_LITERAL: printf("<float:%f> ", token.data.l_float);                     break;
-    case TokenType_OPERATOR:      printf("<operator:" STR_FMT "> ", STR_FMT_VAL(token.data.op)); break;
+    case TokenType_INT_LITERAL:   printf("<int:%d> ", token.data.l_int);                   break;
+    case TokenType_FLOAT_LITERAL: printf("<float:%f> ", token.data.l_float);               break;
+    case TokenType_OPERATOR:      printf("<op:" STR_FMT "> ", STR_FMT_VAL(token.data.op)); break;
 
     case TokenType_PAREN_OPEN:    printf("( ");      break;
     case TokenType_PAREN_CLOSE:   printf(") ");      break;
     case TokenType_BRACE_OPEN:    printf("{ ");      break;
-    case TokenType_BRACE_CLOSE:   printf("{ ");      break;
+    case TokenType_BRACE_CLOSE:   printf("} ");      break;
     case TokenType_NEWLINE:       printf("<\\n>\n"); break;
     case TokenType_DOLLAR:        printf("$ ");      break;
     case TokenType_DOT:           printf(". ");      break;

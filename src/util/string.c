@@ -96,6 +96,16 @@ int str_index_of(String str, char needle) {
 
     return -1;
 }
+int str_last_index_of(String str, char needle) {
+    for (size_t i = 0; i < str.size; i++) {
+        size_t idx = str.size - i - 1;
+        if (str.content[idx] == needle) {
+            return (int) idx;
+        }
+    }
+
+    return -1;
+}
 
 int str_substr_index(String haystack, String needle, size_t start_pos) {
     if (needle.size > haystack.size) { return -1; }
@@ -126,25 +136,38 @@ bool str_starts_with(String full, String prefix) {
     return true;
 }
 
-typedef struct {
-    char *content;
-    size_t size;
-    size_t capacity;
-    Arena *arena;
-} StringBuilder;
+String str_concat(Arena *arena, String left, String right) {
+    if (&left.content[left.size] == right.content) {
+        return (String) { .content = left.content, .size = left.size + right.size };
+    }
+    if (left.size == 0) { return right; }
+    if (right.size == 0) { return left; }
 
-StringBuilder *strb_new(Arena *arena, size_t cap) {
-    if (cap == 0) {
-        cap = 64;
+    String result = {
+        .content = arena_alloc(arena, sizeof(char) * (left.size + right.size)),
+        .size = left.size + right.size,
+    };
+
+    for (size_t i = 0; i < left.size; i++) {
+        result.content[i] = left.content[i];
+    }
+    for (size_t i = 0; i < right.size; i++) {
+        result.content[left.size + i] = right.content[i];
     }
 
-    StringBuilder *sb = arena_alloc(arena, sizeof(StringBuilder));
+    return result;
+}
+
+void strb_init(StringBuilder *sb, Arena *arena, size_t capacity) {
+    if (capacity == 0) {
+        capacity = 64;
+    }
+
     sb->arena = arena;
-    sb->content = arena_alloc(arena, cap * sizeof(char));
+    sb->content = arena_alloc(arena, capacity * sizeof(char));
 
     sb->size = 0;
-    sb->capacity = cap;
-    return sb;
+    sb->capacity = capacity;
 }
 
 void strb_append(StringBuilder *sb, const String str) {
@@ -211,18 +234,19 @@ String str_replace_all(String source, String pattern, String replacement, Arena 
         result_size_estimate += (replacement.size - pattern.size) * 10;
     }
 
-    StringBuilder *sb = strb_new(arena, result_size_estimate);
+    StringBuilder sb;
+    strb_init(&sb, arena, result_size_estimate);
 
     int next_pattern = -1;
     size_t cursor = 0;
 
     while ((next_pattern = str_substr_index(source, pattern, cursor)) >= 0) {
-        strb_append(sb, str_substring(source, cursor, (size_t) next_pattern));
-        strb_append(sb, replacement);
+        strb_append(&sb, str_substring(source, cursor, (size_t) next_pattern));
+        strb_append(&sb, replacement);
         cursor = ((size_t) next_pattern) + pattern.size;
     }
 
     if (cursor == 0) { return source; }
 
-    return strb_render(sb);
+    return strb_render(&sb);
 }

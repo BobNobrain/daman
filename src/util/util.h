@@ -79,9 +79,11 @@ extern bool str_eqc(String str, const char* c_str);
 extern bool str_eq(String s1, String s2);
 extern size_t str_parse_uint_dec(String str, unsigned int *into); // TODO: shouldn't be here?
 extern int str_index_of(String str, char needle);
+extern int str_last_index_of(String str, char needle);
 extern bool str_starts_with(String full, String prefix);
 extern int str_substr_index(String haystack, String needle, size_t start_pos);
 extern String str_replace_all(String source, String pattern, String replacement, Arena *arena);
+extern String str_concat(Arena *arena, String left, String right);
 
 /** to use in printf and alike:
     printf("the string is '" STR_FMT "'!", STR_FMT_VAL(my_string));
@@ -92,16 +94,19 @@ extern String str_replace_all(String source, String pattern, String replacement,
 #define STR_FMT_DEBUG_VAL(STR) (int) ((STR).size), (STR).content, (STR).size
 
 
-#ifndef UTIL_INTERNAL
 /** StringBuilder utility to assemble large strings from multiple parts */
-typedef void StringBuilder;
+typedef struct {
+    char *content;
+    size_t size;
+    size_t capacity;
+    Arena *arena;
+} StringBuilder;
 
-extern StringBuilder *strb_new(Arena *arena, size_t cap);
+extern void strb_init(StringBuilder *sb, Arena *arena, size_t capacity);
 extern void strb_append(StringBuilder *sb, const String str);
-extern void strb_appendc(StringBuilder *sb, const char *c_str);
+extern void strb_appendc(StringBuilder *sb, char *c_str);
 extern error strb_read_from_stream(StringBuilder *sb, FILE *from);
 extern String strb_render(StringBuilder *sb);
-#endif
 
 
 /** Slices */

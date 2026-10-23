@@ -19,27 +19,32 @@ typedef struct Parser Parser;
 
 #define KEYWORD_ENUM_MEMBER(NAME, STR) NAME,
 typedef enum Keyword {
+    Keyword_NONE,
+
     KEYWORD_LIST(KEYWORD_ENUM_MEMBER)
 } Keyword;
 #undef KEYWORD_ENUM_MEMBER
 
+typedef struct {
+    String name;
+    Keyword keyword;
+} IdentTokenData;
+
 #define TOKEN_LIST(X) \
-    X(TokenType_NEWLINE,        , )                     \
-    X(TokenType_IDENT,          String,     ident)      \
-    X(TokenType_KEYWORD,        Keyword,    keyword)    \
-    X(TokenType_INT_LITERAL,    int,        l_int)      \
-    X(TokenType_FLOAT_LITERAL,  float,      l_float)    \
-    X(TokenType_BOOL_LITERAL,   bool,       l_bool)     \
-    X(TokenType_STRING_LITERAL, String,     l_string)   \
-    X(TokenType_REGEX_LITERAL,  String,     l_regex)    \
-    X(TokenType_OPERATOR,       String,     op)         \
-    X(TokenType_PAREN_OPEN,     , )                     \
-    X(TokenType_PAREN_CLOSE,    , )                     \
-    X(TokenType_BRACE_OPEN,     , )                     \
-    X(TokenType_BRACE_CLOSE,    , )                     \
-    X(TokenType_DOT,            , )                     \
-    X(TokenType_COMMA,          , )                     \
-    X(TokenType_DOLLAR,         , )                     \
+    X(TokenType_NEWLINE,        , )                         \
+    X(TokenType_IDENT,          IdentTokenData, ident)      \
+    X(TokenType_INT_LITERAL,    int,            l_int)      \
+    X(TokenType_FLOAT_LITERAL,  float,          l_float)    \
+    X(TokenType_STRING_LITERAL, String,         l_string)   \
+    X(TokenType_REGEX_LITERAL,  String,         l_regex)    \
+    X(TokenType_OPERATOR,       String,         op)         \
+    X(TokenType_PAREN_OPEN,     , )                         \
+    X(TokenType_PAREN_CLOSE,    , )                         \
+    X(TokenType_BRACE_OPEN,     , )                         \
+    X(TokenType_BRACE_CLOSE,    , )                         \
+    X(TokenType_DOT,            , )                         \
+    X(TokenType_COMMA,          , )                         \
+    X(TokenType_DOLLAR,         , )                         \
 
 #define TOKEN_LIST_X(CONST_NAME, DATA_TYPE, FIELD_NAME) CONST_NAME,
 // All language token types, + INVALID
@@ -75,9 +80,11 @@ typedef struct Tokenizer {
 } Tokenizer;
 
 extern TokenSlice _compiler_run_tokenization(Compiler *c);
+extern void _compiler_tokenslice_print(TokenSlice tokens);
 
 
 extern ASTNode* _compiler_astnode_new(Arena *arena, ASTNodeType type);
+extern ASTNode* _compiler_astnode_new_from_token(Arena *arena, ASTNodeType type, Token token);
 extern ASTNode* _compiler_astnode_new_error(Parser *p, String msg);
 extern ASTNode* _compiler_astnode_new_error_ranged(Parser *parser, String msg, DocumentRange range);
 
@@ -109,15 +116,19 @@ typedef struct ParserRewindPoint {
 } ParserRewindPoint;
 
 extern void _compiler_parser_init(Parser *parser, Compiler *c);
-extern String _compiler_parser_configure(Parser *p);
 extern void _compiler_parser_parse(Parser *p, TokenSlice input, ParserGrammar grammar);
 extern Token* _compiler_parser_consume(Parser *p);
 extern Token* _compiler_parser_peek(Parser *p);
 extern Token* _compiler_parser_consume_if(Parser *p, TokenType type);
 extern Token* _compiler_parser_consume_keyword(Parser *p, Keyword kw);
 extern void _compiler_parser_rewind(Parser *p, ParserRewindPoint to);
-extern void _compiler_parser_rewind_n(Parser *p, int n);
 extern DocumentRange _compiler_parser_current_range(Parser *p);
 extern void _compiler_parser_add_diagnostic(Parser *p, Diagnostic d);
+extern void _compiler_parser_collect_errors(Parser *p, ASTNode *node);
+extern ASTNode* _compiler_run_parsing(Compiler *c, TokenSlice input, ParserGrammar grammar);
+
+extern ASTNode* _compiler_g_dman_file(Parser *p);
+
+extern void _compiler_populate_env(Compiler *c, DmanEnv *env);
 
 #endif

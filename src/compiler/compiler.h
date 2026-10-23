@@ -2,6 +2,7 @@
 #define COMPILER_H
 
 #include "util.h"
+#include "lang.h"
 
 typedef struct Compiler Compiler;
 typedef struct ASTNode ASTNode;
@@ -96,67 +97,56 @@ typedef struct {
 } OperatorDecl;
 
 SLICE_DECL(OperatorDecl)
-SLICE_METHODS_DECL(ct_opdeclslice, OperatorDecl)
+SLICE_METHODS_DECL(compiler_opdeclslice, OperatorDecl)
 
 
 #define AST_TYPES_LIST(X) \
     X(ASTNodeType_SYNTAX_ERROR, String, error) \
-    X(ASTNodeType_LINT, int, lint) \
-    X(ASTNodeType_LFLOAT, float, lfloat) \
-    X(ASTNodeType_LBOOL, bool, lbool) \
+    X(ASTNodeType_LINT, int, l_int) \
+    X(ASTNodeType_LNUM, double, l_num) \
     X(ASTNodeType_IDENT, ASTIdentData, ident) \
-    X(ASTNodeType_ENUM_DECL, , ) \
-    X(ASTNodeType_ENUM_MEMBER, , ) \
-    X(ASTNodeType_OBJECT_DECL, , ) \
-    X(ASTNodeType_OBJECT_FIELD_DECL, , ) \
-    X(ASTNodeType_OBJECT_FIELD_SPECIFIER, , ) \
-    X(ASTNodeType_OBJECT_VARIANT_DECL, , ) \
-    X(ASTNodeType_ENCODING_DECL, , ) \
-    X(ASTNodeType_ENCODING_BODY, , ) \
-    X(ASTNodeType_INSTRUCTION_CONDITIONAL, , ) \
-    X(ASTNodeType_INSTRUCTION_MATCH, , ) \
-    X(ASTNodeType_EXPR_FNCALL, , ) \
-    X(ASTNodeType_EXPR_BINOP, OperatorDecl, binop) \
-    X(ASTNodeType_EXPR_UNOP, OperatorDecl, unop) \
+    X(ASTNodeType_IDENT_NESTED, ASTIdentData, nested_ident) \
+    X(ASTNodeType_ENUM_DECL, ASTEnumDeclData, enum_decl) \
+    X(ASTNodeType_OBJECT_DECL, ASTObjectDeclData, object_decl) \
+    X(ASTNodeType_OBJECT_FIELD_DECL, ASTFieldDeclData, field_decl) \
+    X(ASTNodeType_OBJECT_FIELD_SPEC, , ) \
+    X(ASTNodeType_OBJECT_VARIANT_DECL, ASTObjectDeclData, variant_decl) \
     X(ASTNodeType_DMAN_FILE, , ) \
 
 typedef enum ASTNodeType {
     AST_TYPES_LIST(ENUM_MEMBERS)
 } ASTNodeType;
 
-// AST node data for assignments (let x = ?)
-typedef struct ASTAssignmentData {
-    String identifier;
-    Token *ident_token;
-} ASTAssignmentData;
-
 // AST node data for identifiers
 typedef struct ASTIdentData {
     String name;
-    // 0 for unbound, 1+ for closest lambda arguments
-    size_t bound_index;
+    LangSymbol *references_to;
 } ASTIdentData;
 
-// AST node data for lambdas (\x y.?)
-typedef struct ASTLambdaData {
-    size_t n_args;
-    ASTNode *body;
-} ASTLambdaData;
-
-// AST node data for lambda args
-typedef struct ASTLambdaArgData {
+typedef struct {
     String name;
-    String type;
-} ASTLambdaArgData;
+    size_t n_members;
+} ASTEnumDeclData;
+
+typedef struct {
+    String name;
+    size_t n_fields;
+    size_t n_variants;
+} ASTObjectDeclData;
+
+typedef struct {
+    String name;
+    String type_name;
+} ASTFieldDeclData;
 
 struct ASTNode {
     ASTNode *first_child;
     ASTNode *next_sibling;
 
-    // What document range corresponds to this node
-    DocumentRange range;
-    // The defining token of this node (main keyword, or operator, or the single token that generates the node)
-    Token *base;
+    // Part of the document that corresponds to the node
+    DocumentRange full_range;
+    // Part of the document that is specific only to this node (e.g. the operator to a binop node)
+    DocumentRange basis_range;
 
     // Additional data, as defined by .type
     union {
@@ -177,5 +167,10 @@ struct Compiler {
     Arena *arena;
     ASTNode *result;
 };
+
+extern void compiler_init(Compiler *c, Arena *arena, String source);
+extern void compiler_compile(Compiler *c, DmanEnv *env);
+extern void compiler_print_diagnostics(Compiler c);
+extern bool compiler_has_errors(Compiler c);
 
 #endif
