@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "lang_int.h"
 
-DmanDataType* _lang_enum_create(TypeRegistry *reg, Arena *arena, String name, size_t n_members) {
+DmanDataType* lang_enum_create(TypeRegistry *reg, Arena *arena, String name, size_t n_members) {
     DmanDataType *data_type = arena_alloc(arena, sizeof(DmanDataType));
 
     data_type->kind = DmanTypeKind_ENUM;
@@ -24,7 +24,7 @@ DmanDataType* _lang_enum_create_with_names(
     size_t n_members,
     String *names
 ) {
-    DmanDataType *data_type = _lang_enum_create(reg, arena, name, n_members);
+    DmanDataType *data_type = lang_enum_create(reg, arena, name, n_members);
 
     for (size_t i = 0; i < n_members; i++) {
         data_type->data.enum_type.members[i].name = names[i];

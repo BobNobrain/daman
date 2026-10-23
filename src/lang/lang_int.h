@@ -8,8 +8,9 @@ extern void _lang_print_indent(size_t indent);
 extern void _lang_typeregistry_init(TypeRegistry *reg, Arena *arena);
 extern void _lang_typeregistry_add_builtins(TypeRegistry *reg, Arena *arena);
 extern void _lang_datatype_print_builtin(DmanBuiltinType builtin);
+extern void _lang_datatype_print_inline_or_named(DmanDataType *type, size_t indent);
+extern void _lang_datatype_print_inline(DmanDataType *type, size_t indent);
 
-extern DmanDataType* _lang_enum_create(TypeRegistry *reg, Arena *arena, String name, size_t n_members);
 extern DmanDataType* _lang_enum_create_with_names(
     TypeRegistry *reg, Arena *arena,
     String name,
@@ -32,5 +33,12 @@ extern void _lang_objecttype_field_set_name_type(
     String name,
     DmanDataType *data_type
 );
+
+extern DmanDataType* _lang_maptype_create(TypeRegistry *reg, Arena *arena, DmanDataType *from, DmanDataType *to);
+extern void _lang_maptype_print(DmanMapType map_type, size_t indent);
+
+extern LangSymbolTreeItem* _lang_symtree_insert(SymbolTree *tree, String fqn, LangSymbol symbol);
+extern void _lang_symtree_append_child(LangSymbolTreeItem *parent, LangSymbolTreeItem *child);
+extern LangSymbolTreeItem* _lang_symtree_alloc_item(Arena *arena, LangSymbol symbol);
 
 #endif

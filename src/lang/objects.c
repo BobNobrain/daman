@@ -2,19 +2,15 @@
 #include "util.h"
 #include "lang_int.h"
 
-void _lang_objecttype_print_field(DmanObjectField field) {
+void _lang_objecttype_print_field(DmanObjectField field, size_t indent) {
     printf("(%zu) "STR_FMT" ", field.ordinal_number, STR_FMT_VAL(field.name));
-    if (field.data_type == 0) {
-        printf("??");
-    } else {
-        printf(STR_FMT, STR_FMT_VAL(field.data_type->name));
-    }
+    _lang_datatype_print_inline_or_named(field.data_type, indent + 1);
 }
 
 void _lang_objecttype_print_variant(DmanObjectVariant *variant, size_t indent) {
     for (size_t i = 0; i < variant->n_fields; i++) {
         _lang_print_indent(indent);
-        _lang_objecttype_print_field(variant->fields[i]);
+        _lang_objecttype_print_field(variant->fields[i], indent);
         printf("\n");
     }
 }
@@ -22,18 +18,19 @@ void _lang_objecttype_print_variant(DmanObjectVariant *variant, size_t indent) {
 void _lang_objecttype_print(DmanObjectType object, size_t indent) {
     printf("(object, %zu base fields, %zu variants) {\n", object.base.n_fields, object.n_variants);
 
-    _lang_objecttype_print_variant(&object.base, indent + 2);
+    _lang_objecttype_print_variant(&object.base, indent + 1);
 
     for (size_t i = 0; i < object.n_variants; i++) {
         DmanObjectVariant *variant = &object.variants[i];
-        _lang_print_indent(indent + 2);
+        _lang_print_indent(indent + 1);
         printf(".variant "STR_FMT" (%zu fields) {\n", STR_FMT_VAL(variant->name), variant->n_fields);
-        _lang_objecttype_print_variant(variant, indent + 4);
-        _lang_print_indent(indent);
+        _lang_objecttype_print_variant(variant, indent + 2);
+        _lang_print_indent(indent + 1);
         printf("}\n");
     }
 
-    printf("}\n");
+    _lang_print_indent(indent);
+    printf("}");
 }
 
 void _lang_objecttype_field_set_name_type(

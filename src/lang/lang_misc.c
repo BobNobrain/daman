@@ -3,6 +3,6 @@
 
 void _lang_print_indent(size_t indent) {
     for (size_t i = 0; i < indent; i++) {
-        printf(" ");
+        printf("  ");
     }
 }

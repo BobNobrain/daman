@@ -19,6 +19,8 @@ void lang_typeregistry_print(TypeRegistry *reg) {
     printf("TypeRegistry (.next_id = %zu, %zu types)\n", reg->next_free_enum_id, reg->types.size);
 
     for (size_t i = 0; i < reg->types.size; i++) {
-        lang_datatype_print(reg->types.content[i], 0);
+        printf("- ");
+        _lang_datatype_print_inline(reg->types.content[i], 1);
+        printf("\n");
     }
 }
