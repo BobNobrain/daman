@@ -160,4 +160,22 @@ typedef struct {
 extern EnvEnumBuilder lang_env_build_enum(DmanEnv *env, String fqn, size_t n_members);
 extern void lang_enum_builder_add_member(EnvEnumBuilder *builder, String member_name);
 
+typedef struct {
+    DmanEnv *env;
+    DmanObjectType *object_type;
+    DmanObjectVariant *current_variant;
+    LangSymbolTreeItem *parent_symbol;
+    size_t n_fields_filled;
+    size_t n_variants_filled;
+} EnvVariantBuilder;
+
+extern EnvVariantBuilder lang_env_build_objecttype(DmanEnv *env, String name, size_t n_fields, size_t n_variants);
+extern void lang_variant_builder_add_field(EnvVariantBuilder *builder, String field_name);
+extern EnvVariantBuilder lang_variant_builder_add_variant(
+    EnvVariantBuilder *builder,
+    String variant_name,
+    size_t n_variant_fields,
+    size_t n_variant_variants
+);
+
 #endif

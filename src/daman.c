@@ -8,10 +8,6 @@ int main() {
     Arena *arena = arena_new(65536); // TODO: separate arenas for parsing and for env
     arena_set_max_regions(arena, 1);
 
-    // DmanEnv env;
-    // lang_env_init(&env, arena);
-    // lang_env_print(env);
-
     FILE *input = fopen("./tests/test.dman", "r");
     StringBuilder text_builder = { 0 };
     strb_init(&text_builder, arena, 16384);
