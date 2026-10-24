@@ -1,7 +1,22 @@
 #ifndef LANG_INTERNAL
 #define LANG_INTERNAL
 
+#include "util.h"
+
+typedef struct LangSymbolTreeItem LangSymbolTreeItem;
+
 #include "lang.h"
+
+struct SymbolTree {
+    Arena *arena;
+    LangSymbolTreeItem *root;
+};
+
+struct LangSymbolTreeItem {
+    LangSymbol symbol;
+    struct LangSymbolTreeItem *first_child;
+    struct LangSymbolTreeItem *next_sibling;
+};
 
 extern void _lang_print_indent(size_t indent);
 
@@ -37,6 +52,9 @@ extern void _lang_objecttype_field_set_name_type(
 extern DmanDataType* _lang_maptype_create(TypeRegistry *reg, Arena *arena, DmanDataType *from, DmanDataType *to);
 extern void _lang_maptype_print(DmanMapType map_type, size_t indent);
 
+extern void _lang_symtree_init(SymbolTree *tree, Arena *arena);
+extern LangSymbol* _lang_symtree_lookup(SymbolTree *tree, String fqn);
+extern void _lang_symtree_print(SymbolTree *tree);
 extern LangSymbolTreeItem* _lang_symtree_insert(SymbolTree *tree, String fqn, LangSymbol symbol);
 extern void _lang_symtree_append_child(LangSymbolTreeItem *parent, LangSymbolTreeItem *child);
 extern LangSymbolTreeItem* _lang_symtree_alloc_item(Arena *arena, LangSymbol symbol);

@@ -125,21 +125,12 @@ typedef struct {
     SymbolType type;
 } LangSymbol;
 
-typedef struct LangSymbolTreeItem {
-    LangSymbol symbol;
-    struct LangSymbolTreeItem *first_child;
-    struct LangSymbolTreeItem *next_sibling;
-} LangSymbolTreeItem;
-
-typedef struct {
-    Arena *arena;
-    LangSymbolTreeItem *root;
-} SymbolTree;
-
-extern void lang_symtree_init(SymbolTree *tree, Arena *arena);
-extern LangSymbol* lang_symtree_lookup(SymbolTree *tree, String fqn);
-extern LangSymbol* lang_symtree_insert(SymbolTree *tree, String fqn, LangSymbol value);
-extern void lang_symtree_print(SymbolTree *tree);
+#ifndef LANG_INTERNAL
+typedef void SymbolTree;
+typedef void LangSymbolTreeItem;
+#else
+typedef struct SymbolTree SymbolTree;
+#endif
 
 
 typedef struct {
@@ -150,6 +141,7 @@ typedef struct {
 
 extern void lang_env_init(DmanEnv *env, Arena *arena);
 extern void lang_env_print(DmanEnv env);
+
 
 typedef struct {
     DmanEnv *env;

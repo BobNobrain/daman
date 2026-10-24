@@ -5,7 +5,7 @@
 LangSymbolTreeItem* _lang_symtree_find_item(LangSymbolTreeItem *parent, String fqn);
 void _lang_symtree_print_item(LangSymbolTreeItem *item, size_t indent);
 
-void lang_symtree_init(SymbolTree *tree, Arena *arena) {
+void _lang_symtree_init(SymbolTree *tree, Arena *arena) {
     tree->arena = arena;
     tree->root = arena_alloc(arena, sizeof(*tree->root));
 
@@ -20,7 +20,7 @@ void lang_symtree_init(SymbolTree *tree, Arena *arena) {
     };
 }
 
-LangSymbol* lang_symtree_lookup(SymbolTree *tree, String fqn) {
+LangSymbol* _lang_symtree_lookup(SymbolTree *tree, String fqn) {
     LangSymbolTreeItem *found = _lang_symtree_find_item(tree->root, fqn);
     if (found == 0) {
         return 0;
@@ -46,11 +46,6 @@ LangSymbolTreeItem* _lang_symtree_insert(SymbolTree *tree, String fqn, LangSymbo
 
     _lang_symtree_append_child(parent, new_item);
     return new_item;
-}
-
-LangSymbol* lang_symtree_insert(SymbolTree *tree, String fqn, LangSymbol symbol) {
-    LangSymbolTreeItem *item = _lang_symtree_insert(tree, fqn, symbol);
-    return &item->symbol;
 }
 
 LangSymbolTreeItem* _lang_symtree_find_item(LangSymbolTreeItem *parent, String fqn) {
@@ -95,7 +90,7 @@ LangSymbolTreeItem* _lang_symtree_alloc_item(Arena *arena, LangSymbol symbol) {
     return new_item;
 }
 
-void lang_symtree_print(SymbolTree *tree) {
+void _lang_symtree_print(SymbolTree *tree) {
     printf("SymbolTree: \n");
     _lang_symtree_print_item(tree->root, 0);
 }
