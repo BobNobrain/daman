@@ -4,6 +4,7 @@
 #include "util.h"
 
 typedef struct LangSymbolTreeItem LangSymbolTreeItem;
+typedef struct TypeRegistry TypeRegistry;
 
 #include "lang.h"
 
@@ -16,6 +17,15 @@ struct LangSymbolTreeItem {
     LangSymbol symbol;
     struct LangSymbolTreeItem *first_child;
     struct LangSymbolTreeItem *next_sibling;
+};
+
+ARRAY_DECL_NAMED(DmanDataType*, TypeArray)
+ARRAY_METHODS_DECL_NAMED(_lang_typearray, DmanDataType*, TypeArray);
+
+struct TypeRegistry {
+    WellKnownTypes wkt;
+    TypeArray types;
+    size_t next_free_enum_id;
 };
 
 extern void _lang_print_indent(size_t indent);

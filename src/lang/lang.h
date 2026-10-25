@@ -67,9 +67,6 @@ struct DmanDataType {
     DmanTypeKind kind;
 };
 
-ARRAY_DECL_NAMED(DmanDataType*, TypeArray)
-ARRAY_METHODS_DECL_NAMED(_lang_typearray, DmanDataType*, TypeArray);
-
 typedef struct {
     DmanDataType *integer_type;
     DmanDataType *number_type;
@@ -80,16 +77,6 @@ typedef struct {
     DmanDataType *datatype_type;
     DmanDataType *field_type;
 } WellKnownTypes;
-
-#ifndef LANG_INTERNAL
-typedef void TypeRegistry;
-#else
-typedef struct {
-    WellKnownTypes wkt;
-    TypeArray types;
-    size_t next_free_enum_id;
-} TypeRegistry;
-#endif
 
 extern void lang_datatype_print(DmanDataType *type);
 
@@ -124,10 +111,10 @@ typedef struct {
 #ifndef LANG_INTERNAL
 typedef void SymbolTree;
 typedef void LangSymbolTreeItem;
+typedef void TypeRegistry;
 #else
 typedef struct SymbolTree SymbolTree;
 #endif
-
 
 typedef struct {
     Arena *arena;
@@ -137,6 +124,7 @@ typedef struct {
 
 extern void lang_env_init(DmanEnv *env, Arena *arena);
 extern void lang_env_print(DmanEnv env);
+extern WellKnownTypes lang_env_get_wkt(DmanEnv env);
 
 
 typedef struct {

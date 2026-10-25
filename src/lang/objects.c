@@ -23,7 +23,7 @@ void _lang_objecttype_print(DmanObjectType object, size_t indent) {
     for (size_t i = 0; i < object.n_variants; i++) {
         DmanObjectVariant *variant = &object.variants[i];
         _lang_print_indent(indent + 1);
-        printf(".variant "STR_FMT" (%zu fields) {\n", STR_FMT_VAL(variant->name), variant->n_fields);
+        printf("~variant "STR_FMT" (%zu fields) {\n", STR_FMT_VAL(variant->name), variant->n_fields);
         _lang_objecttype_print_variant(variant, indent + 2);
         _lang_print_indent(indent + 1);
         printf("}\n");
