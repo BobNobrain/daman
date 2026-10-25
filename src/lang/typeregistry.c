@@ -2,7 +2,7 @@
 #include "util.h"
 #include "lang_int.h"
 
-void lang_typeregistry_register(TypeRegistry *reg, DmanDataType *type) {
+void _lang_typeregistry_register(TypeRegistry *reg, DmanDataType *type) {
     _lang_typearray_append(&reg->types, type);
 
     if (type->kind == DmanTypeKind_ENUM) {
@@ -15,7 +15,7 @@ void _lang_typeregistry_init(TypeRegistry *reg, Arena *arena) {
     reg->next_free_enum_id = 1; // reserving 0 for error state
 }
 
-void lang_typeregistry_print(TypeRegistry *reg) {
+void _lang_typeregistry_print(TypeRegistry *reg) {
     printf("TypeRegistry (.next_id = %zu, %zu types)\n", reg->next_free_enum_id, reg->types.size);
 
     for (size_t i = 0; i < reg->types.size; i++) {

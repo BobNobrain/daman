@@ -91,11 +91,7 @@ typedef struct {
 } TypeRegistry;
 #endif
 
-extern void lang_typeregistry_register(TypeRegistry *reg, DmanDataType *type);
-extern void lang_typeregistry_print(TypeRegistry *reg);
 extern void lang_datatype_print(DmanDataType *type);
-
-extern DmanDataType* lang_enum_create(TypeRegistry *reg, Arena *arena, String name, size_t n_members);
 
 
 typedef struct {

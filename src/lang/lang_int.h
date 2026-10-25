@@ -21,6 +21,8 @@ struct LangSymbolTreeItem {
 extern void _lang_print_indent(size_t indent);
 
 extern void _lang_typeregistry_init(TypeRegistry *reg, Arena *arena);
+extern void _lang_typeregistry_register(TypeRegistry *reg, DmanDataType *type);
+extern void _lang_typeregistry_print(TypeRegistry *reg);
 extern void _lang_datatype_print_builtin(DmanBuiltinType builtin);
 extern DmanDataType* _lang_builtin_get_int();
 extern DmanDataType* _lang_builtin_get_num();
@@ -29,12 +31,7 @@ extern DmanDataType* _lang_builtin_get_rex();
 extern void _lang_datatype_print_inline_or_named(DmanDataType *type, size_t indent);
 extern void _lang_datatype_print_inline(DmanDataType *type, size_t indent);
 
-extern DmanDataType* _lang_enum_create_with_names(
-    TypeRegistry *reg, Arena *arena,
-    String name,
-    size_t n_members,
-    String *names
-);
+extern DmanDataType* _lang_enum_create(TypeRegistry *reg, Arena *arena, String name, size_t n_members);
 extern void _lang_enum_print(DmanEnumType enum_type);
 
 extern void _lang_objecttype_print(DmanObjectType object, size_t indent);

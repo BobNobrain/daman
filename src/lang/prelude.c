@@ -57,7 +57,7 @@ void _lang_env_register_reflect_types(DmanEnv *env) {
 }
 
 void _lang_env_register_primitive(DmanEnv *env, DmanDataType *type) {
-    lang_typeregistry_register(env->data_types, type);
+    _lang_typeregistry_register(env->data_types, type);
     _lang_symtree_insert(env->symbols, type->name, (LangSymbol) {
         .type = SymbolType_DATATYPE,
         .name = type->name,

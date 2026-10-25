@@ -15,12 +15,12 @@ void lang_env_init(DmanEnv *env, Arena *arena) {
 }
 
 void lang_env_print(DmanEnv env) {
-    lang_typeregistry_print(env.data_types);
+    _lang_typeregistry_print(env.data_types);
     _lang_symtree_print(env.symbols);
 }
 
 EnvEnumBuilder lang_env_build_enum(DmanEnv *env, String enum_name, size_t n_members) {
-    DmanDataType *enum_type = lang_enum_create(
+    DmanDataType *enum_type = _lang_enum_create(
         env->data_types,
         env->arena,
         enum_name,

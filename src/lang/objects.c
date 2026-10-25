@@ -92,6 +92,6 @@ DmanDataType* _lang_objecttype_create(
         }
     }
 
-    lang_typeregistry_register(reg, result);
+    _lang_typeregistry_register(reg, result);
     return result;
 }
