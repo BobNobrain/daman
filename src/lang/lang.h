@@ -37,18 +37,14 @@ typedef struct {
     DmanDataType *data_type;
 } DmanObjectField;
 
-typedef struct {
+typedef struct DmanObjectVariant {
     String name;
     DmanObjectField *fields;
     size_t n_fields;
+    struct DmanObjectVariant *variants;
+    size_t n_variants;
     // TODO: variants can have variants
 } DmanObjectVariant;
-
-typedef struct {
-    DmanObjectVariant base;
-    DmanObjectVariant *variants;
-    size_t n_variants;
-} DmanObjectType;
 
 typedef struct {
     DmanDataType *from;
@@ -58,7 +54,7 @@ typedef struct {
 struct DmanDataType {
     union {
         DmanEnumType enum_type;
-        DmanObjectType object_type;
+        DmanObjectVariant object_type;
         DmanMapType map_type;
         DmanBuiltinType builtin;
         DmanDataType *alias;
@@ -125,6 +121,7 @@ typedef struct {
 extern void lang_env_init(DmanEnv *env, Arena *arena);
 extern void lang_env_print(DmanEnv env);
 extern WellKnownTypes lang_env_get_wkt(DmanEnv env);
+extern LangSymbol* lang_env_resolve_name(DmanEnv env, String fqn);
 
 
 typedef struct {
@@ -138,7 +135,6 @@ extern void lang_enum_builder_add_member(EnvEnumBuilder *builder, String member_
 
 typedef struct {
     DmanEnv *env;
-    DmanObjectType *object_type;
     DmanObjectVariant *current_variant;
     LangSymbolTreeItem *parent_symbol;
     size_t n_fields_filled;

@@ -29,9 +29,9 @@ DmanDataType* _lang_builtin_get_rex() { return &_lang_builtin_type_rex; }
 
 void _lang_datatype_print_builtin(DmanBuiltinType builtin) {
     switch (builtin) {
-    case DmanBuiltinType_INTEGER: printf("(int)"); break;
-    case DmanBuiltinType_NUMBER:  printf("(num)"); break;
-    case DmanBuiltinType_STRING:  printf("(str)"); break;
-    case DmanBuiltinType_REGEX:   printf("(rex)"); break;
+    case DmanBuiltinType_INTEGER: printf("(builtin int)"); break;
+    case DmanBuiltinType_NUMBER:  printf("(builtin num)"); break;
+    case DmanBuiltinType_STRING:  printf("(builtin str)"); break;
+    case DmanBuiltinType_REGEX:   printf("(builtin rex)"); break;
     }
 }

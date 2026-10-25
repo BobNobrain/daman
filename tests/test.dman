@@ -9,7 +9,6 @@ enum TodoStatus {
 object TodoItem {
     title String
     status TodoStatus
-    variant Variant
 
     ~variant Done {
         x Number

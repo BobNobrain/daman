@@ -22,3 +22,7 @@ void lang_env_print(DmanEnv env) {
 WellKnownTypes lang_env_get_wkt(DmanEnv env) {
     return env.data_types->wkt;
 }
+
+LangSymbol* lang_env_resolve_name(DmanEnv env, String fqn) {
+    return _lang_symtree_lookup(env.symbols, fqn);
+}

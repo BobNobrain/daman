@@ -44,14 +44,20 @@ extern void _lang_datatype_print_inline(DmanDataType *type, size_t indent);
 extern DmanDataType* _lang_enum_create(TypeRegistry *reg, Arena *arena, String name, size_t n_members);
 extern void _lang_enum_print(DmanEnumType enum_type);
 
-extern void _lang_objecttype_print(DmanObjectType object, size_t indent);
+extern void _lang_objecttype_print(DmanObjectVariant object, size_t indent);
 extern DmanDataType* _lang_objecttype_create(
     TypeRegistry *reg, Arena *arena,
     String type_name,
     size_t n_base_fields,
     size_t n_variants
 );
-extern void _lang_objecttype_init_variant(DmanObjectVariant *variant, Arena *arena, String name, size_t n_fields);
+extern void _lang_objecttype_init_variant(
+    DmanObjectVariant *variant,
+    Arena *arena,
+    String name,
+    size_t n_fields,
+    size_t n_variants
+);
 extern void _lang_objecttype_field_set_name_type(
     DmanObjectVariant *variant,
     size_t index,

@@ -49,8 +49,7 @@ EnvVariantBuilder lang_env_build_objecttype(DmanEnv *env, String object_name, si
     return (EnvVariantBuilder) {
         .env = env,
         .parent_symbol = item,
-        .object_type = &object_type->data.object_type,
-        .current_variant = &object_type->data.object_type.base,
+        .current_variant = &object_type->data.object_type,
         .n_fields_filled = 0,
         .n_variants_filled = 0,
     };
@@ -79,14 +78,9 @@ EnvVariantBuilder lang_variant_builder_add_variant(
     size_t n_variant_fields,
     size_t n_variant_variants
 ) {
-    if (n_variant_variants > 0 || builder->current_variant != &builder->object_type->base) {
-        printf("NOT IMPLEMENTED: variants of variants");
-        exit(EXIT_FAILURE);
-    }
-
-    DmanObjectVariant *variant = &builder->object_type->variants[builder->n_variants_filled];
+    DmanObjectVariant *variant = &builder->current_variant->variants[builder->n_variants_filled];
     builder->n_variants_filled += 1;
-    _lang_objecttype_init_variant(variant, builder->env->arena, variant_name, n_variant_fields);
+    _lang_objecttype_init_variant(variant, builder->env->arena, variant_name, n_variant_fields, n_variant_variants);
 
     LangSymbolTreeItem *variant_symbol = _lang_symtree_alloc_item(
         builder->env->arena,
@@ -101,7 +95,6 @@ EnvVariantBuilder lang_variant_builder_add_variant(
     return (EnvVariantBuilder) {
         .env = builder->env,
         .parent_symbol = variant_symbol,
-        .object_type = builder->object_type,
         .current_variant = variant,
         .n_fields_filled = 0,
         .n_variants_filled = 0

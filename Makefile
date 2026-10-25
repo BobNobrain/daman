@@ -20,9 +20,6 @@ OUT_DIR_MODULES = out/$(MODE)/modules
 HEADERS := $(wildcard include/*.h)
 
 SRC_MODULES := $(wildcard src/*/)
-# ALL_MODULE_NAMES := $(patsubst src/%/,%,$(SRC_MODULES))
-# MODULE_HEADERS := $(foreach module,$(ALL_MODULE_NAMES),src/$(module)/$(module).h)
-
 SRC_EXECS := $(wildcard src/*.c)
 ALL_EXEC_NAMES := $(patsubst src/%.c,%,$(SRC_EXECS))
 
