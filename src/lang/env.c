@@ -9,8 +9,9 @@ void lang_env_init(DmanEnv *env, Arena *arena) {
     env->symbols = arena_alloc(arena, sizeof(*env->symbols));
 
     _lang_typeregistry_init(env->data_types, arena);
-    _lang_typeregistry_add_builtins(env->data_types, arena);
     _lang_symtree_init(env->symbols, arena);
+
+    _lang_env_add_prelude(env);
 }
 
 void lang_env_print(DmanEnv env) {
@@ -71,19 +72,21 @@ EnvVariantBuilder lang_env_build_objecttype(DmanEnv *env, String object_name, si
     };
 }
 
-void lang_variant_builder_add_field(EnvVariantBuilder *builder, String field_name) {
+LangSymbol* lang_variant_builder_add_field(EnvVariantBuilder *builder, String field_name) {
     DmanObjectField *field = &builder->current_variant->fields[builder->n_fields_filled];
     field->name = field_name;
     builder->n_fields_filled += 1;
 
-    _lang_symtree_append_child(builder->parent_symbol, _lang_symtree_alloc_item(
+    LangSymbolTreeItem *field_symbol = _lang_symtree_alloc_item(
         builder->env->arena,
         (LangSymbol) {
             .type = SymbolType_OBJECT_FIELD,
             .name = field_name,
             .value = { .object_field = field },
         }
-    ));
+    );
+    _lang_symtree_append_child(builder->parent_symbol, field_symbol);
+    return &field_symbol->symbol;
 }
 
 EnvVariantBuilder lang_variant_builder_add_variant(

@@ -21,8 +21,11 @@ struct LangSymbolTreeItem {
 extern void _lang_print_indent(size_t indent);
 
 extern void _lang_typeregistry_init(TypeRegistry *reg, Arena *arena);
-extern void _lang_typeregistry_add_builtins(TypeRegistry *reg, Arena *arena);
 extern void _lang_datatype_print_builtin(DmanBuiltinType builtin);
+extern DmanDataType* _lang_builtin_get_int();
+extern DmanDataType* _lang_builtin_get_num();
+extern DmanDataType* _lang_builtin_get_str();
+extern DmanDataType* _lang_builtin_get_rex();
 extern void _lang_datatype_print_inline_or_named(DmanDataType *type, size_t indent);
 extern void _lang_datatype_print_inline(DmanDataType *type, size_t indent);
 
@@ -58,5 +61,7 @@ extern void _lang_symtree_print(SymbolTree *tree);
 extern LangSymbolTreeItem* _lang_symtree_insert(SymbolTree *tree, String fqn, LangSymbol symbol);
 extern void _lang_symtree_append_child(LangSymbolTreeItem *parent, LangSymbolTreeItem *child);
 extern LangSymbolTreeItem* _lang_symtree_alloc_item(Arena *arena, LangSymbol symbol);
+
+extern void _lang_env_add_prelude(DmanEnv *env);
 
 #endif

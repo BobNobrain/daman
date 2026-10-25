@@ -162,7 +162,7 @@ typedef struct {
 } EnvVariantBuilder;
 
 extern EnvVariantBuilder lang_env_build_objecttype(DmanEnv *env, String name, size_t n_fields, size_t n_variants);
-extern void lang_variant_builder_add_field(EnvVariantBuilder *builder, String field_name);
+extern LangSymbol* lang_variant_builder_add_field(EnvVariantBuilder *builder, String field_name);
 extern EnvVariantBuilder lang_variant_builder_add_variant(
     EnvVariantBuilder *builder,
     String variant_name,
